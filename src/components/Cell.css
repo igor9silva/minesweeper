@@ -1,0 +1,60 @@
+
+.cell {
+    float: left;
+    margin: 1px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 20px;
+    text-align: center;
+    background-color: grey;
+    transition: transform 200ms ease-out;
+}
+
+.cell:hover {
+    transform: scale(0.8);
+}
+
+.cell.open {
+    background-color: lightgrey;
+}
+
+.cell.open.mine {
+    background-color: red;
+}
+
+.cell.flagged {
+    border: 2px solid red;
+    margin: 0;
+}
+
+.cell.surrounding-1 {
+    color: blue;
+}
+
+.cell.surrounding-2 {
+    color: green;
+}
+
+.cell.surrounding-3 {
+    color: red;
+}
+
+.cell.surrounding-4 {
+    color: darkblue;
+}
+
+.cell.surrounding-5 {
+    color: darkred;
+}
+
+.cell.surrounding-6 {
+    color: darkcyan;
+}
+
+.cell.surrounding-7 {
+    color: darkmagenta;
+}
+
+.cell.surrounding-8 {
+    color: black;
+}
