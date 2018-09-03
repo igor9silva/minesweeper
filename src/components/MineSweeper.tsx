@@ -41,7 +41,7 @@ export default class MineSweeper extends React.Component<IProps, IState> {
         for (let i = 0; i < total; i++) {
             cells[i] = { 
                 isMine: false,
-                isOpen: true,
+                isOpen: false,
                 isFlagged: false,
                 surroundingQuantity: 0, 
             }
@@ -70,23 +70,40 @@ export default class MineSweeper extends React.Component<IProps, IState> {
             }
         }
 
-        const W = this.props.width;
-
-        minePositions.forEach(pos => {
-            increaseSurroundingQuantity(pos - 1);       // left
-            increaseSurroundingQuantity(pos - W - 1);   // left top
-            increaseSurroundingQuantity(pos - W);       // top
-            increaseSurroundingQuantity(pos - W + 1);   // right top
-            increaseSurroundingQuantity(pos + 1);       // right
-            increaseSurroundingQuantity(pos + W + 1);   // right bottom
-            increaseSurroundingQuantity(pos + W);       // bottom
-            increaseSurroundingQuantity(pos + W - 1);   // left bottom
-        });
+        minePositions.forEach(pos => this.surroundingPositionsFor(pos).forEach(p => increaseSurroundingQuantity(p)));
 
         this.state = { cells };
     }
 
-    cellStateChanged = (pos: number, state: any) => {
+    surroundingPositionsFor(pos: number): number[] {
+
+        const W = this.props.width;
+
+        const positions = []
+
+        if ((pos + 1) % this.props.width !== 0) {
+            positions.push(
+                pos + 1,        // right
+                pos - W + 1,    // right top
+                pos + W + 1,    // right bottom
+            );
+        }
+
+        if (pos % this.props.width !== 0) {
+            positions.push(
+                pos - 1,        // left
+                pos - W - 1,    // left top
+                pos + W - 1,    // left bottom
+            );
+        }
+
+        return positions.concat([
+            pos - W,        // top
+            pos + W,        // bottom
+        ]);
+    }
+
+    cellStateChanged = (pos: number, state: CellState) => {
         this.state.cells[pos] = state;
         this.checkIfEnded();
     }
