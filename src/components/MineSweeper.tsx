@@ -16,7 +16,7 @@ export interface IProps {
 }
 
 interface IState {
-    cells: CellState[][];
+    cells: CellState[];
 }
 
 export default class MineSweeper extends React.Component<IProps, IState> {
@@ -35,20 +35,15 @@ export default class MineSweeper extends React.Component<IProps, IState> {
         
         // 1. Initialize all cell states as blank
 
-        const cells = new Array<CellState[]>(props.width);
+        const total = props.width * props.height;
+        const cells = new Array<CellState>(total);
 
-        for (let x = 0; x < props.width; x++) {
-
-            cells[x] = new Array<CellState>(props.height);
-
-            for (let y = 0; y < props.height; y++) {
-
-                cells[x][y] = { 
-                    isMine: false,
-                    isOpen: true,
-                    isFlagged: false,
-                    surroundingQuantity: 0, 
-                }
+        for (let i = 0; i < total; i++) {
+            cells[i] = { 
+                isMine: false,
+                isOpen: true,
+                isFlagged: false,
+                surroundingQuantity: 0, 
             }
         }
 
@@ -65,58 +60,44 @@ export default class MineSweeper extends React.Component<IProps, IState> {
             }
         }
 
-        minePositions.forEach(pos => {
-
-            const width = this.props.width;
-            const x = Math.floor(pos % width);
-            const y = Math.floor(pos / width);
-
-            cells[x][y].isMine = true;
-        });
+        minePositions.forEach(pos => cells[pos].isMine = true);
 
         // 3. Calculate surrounding quantities
 
-        const increaseSurroundingQuantity = (x: number, y: number) => {
-            if (x >= 0 && y >= 0 && x < this.props.width && y < this.props.height) {
-                cells[x][y].surroundingQuantity += 1;
+        const increaseSurroundingQuantity = (pos: number) => {
+            if (pos >= 0 && pos < (this.props.width * this.props.height)) {
+                cells[pos].surroundingQuantity += 1;
             }
         }
 
+        const W = this.props.width;
+
         minePositions.forEach(pos => {
-
-            const width = this.props.width;
-            const x = Math.floor(pos % width);
-            const y = Math.floor(pos / width);
-
-            increaseSurroundingQuantity(x - 1, y    ); // left
-            increaseSurroundingQuantity(x - 1, y - 1); // left top
-            increaseSurroundingQuantity(x    , y - 1); // top
-            increaseSurroundingQuantity(x + 1, y - 1); // right top
-            increaseSurroundingQuantity(x + 1, y    ); // right
-            increaseSurroundingQuantity(x + 1, y + 1); // right bottom
-            increaseSurroundingQuantity(x    , y + 1); // bottom
-            increaseSurroundingQuantity(x - 1, y + 1); // left bottom
+            increaseSurroundingQuantity(pos - 1);       // left
+            increaseSurroundingQuantity(pos - W - 1);   // left top
+            increaseSurroundingQuantity(pos - W);       // top
+            increaseSurroundingQuantity(pos - W + 1);   // right top
+            increaseSurroundingQuantity(pos + 1);       // right
+            increaseSurroundingQuantity(pos + W + 1);   // right bottom
+            increaseSurroundingQuantity(pos + W);       // bottom
+            increaseSurroundingQuantity(pos + W - 1);   // left bottom
         });
 
         this.state = { cells };
     }
 
-    get allCells(): CellState[] {
-        return this.state.cells.reduce((all, cur) => all.concat(cur))
-    }
-
-    cellStateChanged = (x: number, y: number, state: any) => {
-        this.state.cells[x][y] = state;
+    cellStateChanged = (pos: number, state: any) => {
+        this.state.cells[pos] = state;
         this.checkIfEnded();
     }
 
     checkIfEnded = () => {
 
-        // const openMines = this.allCells.filter(cell => cell.isOpen && cell.isMine);
+        const openMines = this.state.cells.filter(cell => cell.isOpen && cell.isMine);
 
-        // if (openMines.length > 0) {
-        //     // alert("CABOU!");
-        // }
+        if (openMines.length > 0) {
+            // alert("PERDEU!");
+        }
     }
 
     render() {
@@ -125,17 +106,9 @@ export default class MineSweeper extends React.Component<IProps, IState> {
             width: `${(Cell.DEFAULT_SIZE + 2) * this.props.width}px`,
         };
 
-        const cells = [];
-
-        for (let y = 0; y < this.props.height; y++) {
-            for (let x = 0; x < this.props.width; x++) {
-                cells.push(<Cell key={`${x}-${y}`} x={x} y={y} initialState={this.state.cells[x][y]} onChange={this.cellStateChanged} />)
-            }
-        }
-
         return (
             <div className="map" style={style}>
-                {cells}
+                { this.state.cells.map((state, pos) => <Cell key={pos} pos={pos} initialState={state} onChange={this.cellStateChanged} />) }
             </div>
         );
     }

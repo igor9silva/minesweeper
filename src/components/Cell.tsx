@@ -3,10 +3,9 @@ import * as React from 'react';
 import './Cell.css';
 
 export interface IProps {
-    x: number;
-    y: number;
+    pos: number;
     initialState: IState;
-    onChange: (x: number, y: number, state: any) => any;
+    onChange: (pos: number, state: any) => any;
 }
 
 export interface IState {
@@ -45,7 +44,7 @@ export default class Cell extends React.Component<IProps, IState> {
 
     render() {
 
-        this.props.onChange(this.props.x, this.props.y, this.state);
+        this.props.onChange(this.props.pos, this.state);
 
         const size = this.state.isFlagged ? Cell.DEFAULT_SIZE - 2 : Cell.DEFAULT_SIZE;
 
