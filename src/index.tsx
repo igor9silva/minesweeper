@@ -9,7 +9,7 @@ import MineSweeper from './components/MineSweeper';
 import registerServiceWorker from './registerServiceWorker';
 
 ReactDOM.render(
-  <MineSweeper height={10} width={10} mines={20} />,
+  <MineSweeper height={16} width={16} mines={50} />,
   document.getElementById('root')!
 );
 

@@ -17,6 +17,7 @@ export interface IProps {
 
 interface IState {
     cells: CellState[];
+    hasEnded: boolean;
 }
 
 export default class MineSweeper extends React.Component<IProps, IState> {
@@ -72,14 +73,14 @@ export default class MineSweeper extends React.Component<IProps, IState> {
 
         minePositions.forEach(pos => this.surroundingPositionsFor(pos).forEach(p => increaseSurroundingQuantity(p)));
 
-        this.state = { cells };
+        this.state = { cells, hasEnded: false };
     }
 
     surroundingPositionsFor(pos: number): number[] {
 
         const W = this.props.width;
 
-        const positions = []
+        const positions = [];
 
         if ((pos + 1) % this.props.width !== 0) {
             positions.push(
@@ -110,10 +111,21 @@ export default class MineSweeper extends React.Component<IProps, IState> {
 
     checkIfEnded = () => {
 
+        if (this.state.hasEnded) { return }
+
         const openMines = this.state.cells.filter(cell => cell.isOpen && cell.isMine);
 
         if (openMines.length > 0) {
-            // alert("PERDEU!");
+
+            const cells = this.state.cells.map(cell => {
+                cell.isMine = true;
+                cell.isOpen = true;
+                return cell;
+            });
+
+            this.setState({ cells, hasEnded: true });
+
+            alert("PERDEU!");
         }
     }
 

@@ -24,6 +24,10 @@ export default class Cell extends React.Component<IProps, IState> {
         this.state = props.initialState;
     }
 
+    componentWillReceiveProps(nextProps: IProps) {
+        this.setState(nextProps.initialState);
+    }
+
     setIsMine = () => {
         const isMine = true;
         this.setState({ isMine });
