@@ -17,10 +17,11 @@ export interface IProps {
 
 interface IState {
     cells: CellState[];
-    hasEnded: boolean;
 }
 
 export default class MineSweeper extends React.Component<IProps, IState> {
+
+    private hasEnded: boolean = false;
 
     constructor(props: IProps) {
         super(props);
@@ -73,7 +74,19 @@ export default class MineSweeper extends React.Component<IProps, IState> {
 
         minePositions.forEach(pos => this.surroundingPositionsFor(pos).forEach(p => increaseSurroundingQuantity(p)));
 
-        this.state = { cells, hasEnded: false };
+        this.state = { cells };
+    }
+
+    reinitializeCells() {
+
+        this.initializeCells(this.props);
+
+        // This method was triggered by a child render() call,
+        // so we setTimeout to avoid re-rendering.
+        setTimeout(() => {
+            this.setState(this.state);
+            this.hasEnded = false;
+        });
     }
 
     surroundingPositionsFor(pos: number): number[] {
@@ -105,27 +118,28 @@ export default class MineSweeper extends React.Component<IProps, IState> {
     }
 
     cellStateChanged = (pos: number, state: CellState) => {
-        this.state.cells[pos] = state;
-        this.checkIfEnded();
+        if (this.hasEnded) {
+            this.reinitializeCells();
+        } else {
+            this.state.cells[pos] = state;
+            this.checkIfEnded();
+        }
     }
 
     checkIfEnded = () => {
 
-        if (this.state.hasEnded) { return }
-
         const openMines = this.state.cells.filter(cell => cell.isOpen && cell.isMine);
+        const closedCells = this.state.cells.filter(cell => !cell.isOpen);
+
+        const finish = (message: string) => {
+            this.hasEnded = true;
+            alert(`${message}! Touch any cell to restart.`);
+        };
 
         if (openMines.length > 0) {
-
-            const cells = this.state.cells.map(cell => {
-                cell.isMine = true;
-                cell.isOpen = true;
-                return cell;
-            });
-
-            this.setState({ cells, hasEnded: true });
-
-            alert("PERDEU!");
+            finish("You've LOST");
+        } else if (closedCells.length === this.props.mines) {
+            finish("You've WON");
         }
     }
 
